@@ -4,15 +4,27 @@
 #include <stdlib.h>
 #include <xcb/xcb.h>
 
+
+/**
+ * contains an xcb event response type and its appropriate handler function pointer
+ */
 typedef struct {
-   uint32_t ev;
-   void(*fp)(xcb_connection_t *c, xcb_generic_event_t *ev);
+   uint32_t ev; ///< event response type identifying this handler
+   /**
+    * takes event and extra data (active keypresses etc.) and handles ev
+    * 
+    */
+   void(*fp)(xcb_connection_t *c, xcb_generic_event_t *ev, void *data); 
 } handler_t;
 
-void map_request_handler(xcb_connection_t *c, xcb_generic_event_t *ev);
-void destroy_handler(xcb_connection_t *c, xcb_generic_event_t *ev);
+void map_request_handler(xcb_connection_t *c, xcb_generic_event_t *ev, void *data);
+void destroy_handler(xcb_connection_t *c, xcb_generic_event_t *ev, void *data);
 
-static handler_t custom_handlers[] {
+/**
+ * array of handler_t, indexed by corresponding xcb event response type
+ * custom variant: all function pointers are set to NULL for user convenience
+ */
+static handler_t custom_handlers[] = {
    {0x0, NULL},
    {0x1, NULL},
    {XCB_KEY_PRESS, NULL},
@@ -51,7 +63,11 @@ static handler_t custom_handlers[] {
    {XCB_GE_GENERIC, NULL}
 };
 
-static handler_t default_handlers[] {
+/**
+ * array of handler_t, indexed by corresponding xcb event response type
+ * default variant: default handlers are provided for all events
+ */
+static handler_t default_handlers[] = {
    {0x0, NULL},
    {0x1, NULL},
    {XCB_KEY_PRESS, NULL},
