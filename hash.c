@@ -28,6 +28,7 @@ msg_handler_t *default_msg_handler = (msg_handler_t[]){
 
 msg_handler_t *setup_msg_handler_table(msg_handler_t *handler_list) {
    while(handler_list != NULL) {
+
    }
 }
 
