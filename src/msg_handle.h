@@ -13,6 +13,33 @@
 #define CHAR_ARG_OPTIONAL 7
 
 typedef struct {
+   int val;
+   int set;
+} int_arg_t;
+
+typedef struct {
+   char val;
+   int set;
+} char_arg_t;
+
+typedef struct {
+   char *val;
+   int set;
+} str_arg_t;
+
+typedef struct {
+   int set;
+} none_arg_t;
+
+typedef struct {
+   int len;
+   int_arg_t *int_args;
+   char_arg_t *char_args;
+   str_arg_t *str_args;
+   none_arg_t *none_args;
+} args_t;
+
+typedef struct {
    const char *cmd_name;
    int *params;
    char*(*handler)(xcb_connection_t *c, int *params, char *args, void *wm_state);
