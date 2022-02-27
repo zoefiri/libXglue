@@ -6,10 +6,10 @@ typedef struct {
    int y;
    int w;
    int h;
-} win_geom_t;  
+} win_geom_t;
 
 typedef struct {
    win_geom_t *win_geoms;
-} wm_state_t;
+} win_state_t;  
 
 #endif
