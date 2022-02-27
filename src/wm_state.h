@@ -1,5 +1,5 @@
-#ifndef  WIN_STATE_H
-#define  WIN_STATE_H
+#ifndef  WM_STATE_H
+#define  WM_STATE_H
 
 typedef struct {
    int x;
@@ -10,6 +10,6 @@ typedef struct {
 
 typedef struct {
    win_geom_t *win_geoms;
-} win_state_t;  
+} wm_state_t;  
 
 #endif
