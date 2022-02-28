@@ -4,7 +4,9 @@
 #include "ev_handle.h"
 
 int handle_ev(xcb_connection_t *c, ev_handler_t *handlers, xcb_generic_event_t *ev, void *wm_state) {
-   if(handlers[ev->response_type].fp) handlers[ev->response_type].fp(c, ev, wm_state);
+   if(handlers[ev->response_type].fp) {
+      handlers[ev->response_type].fp(c, ev, wm_state);
+   }
    return 0;
 }
 
