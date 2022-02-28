@@ -111,7 +111,7 @@ int main() {
    xcb_change_window_attributes(c,
          screen->root,
          XCB_CW_EVENT_MASK, select_input_val
-         );
+   );
 
    xcb_aux_sync(c);
 
@@ -123,6 +123,8 @@ int main() {
    xcb_flush(c);
 
    wm_state_t wm_state;
+   wm_state.root = screen->root;
+   wm_state.active_win = 0;
 
    wm_state.win_geoms = calloc(100, sizeof(win_geom_t));
    msg_handler_t *msg_handlers = setup_msg_handler_table(default_msg_handlers, 2);

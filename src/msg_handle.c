@@ -160,7 +160,7 @@ char *resize_handler(xcb_connection_t *c, int *params, char *args, void *wm_stat
    args_t parsed = parse_args(params, args);
    int win_geom[] = {0, 0, 0, 0};
 
-   if(parsed.char_args[0].set && parsed.int_args[0].set) {
+   if(parsed.char_args[0].set && parsed.int_args[0].set && wstate->active_win) {
       xcb_translate_coordinates_reply_t *coords    =  calc_absolute_pos(c, &wstate->active_win, &wstate->root, 0, 0);
       xcb_get_geometry_cookie_t geom_cookie        =  xcb_get_geometry(c, wstate->active_win);
       xcb_get_geometry_reply_t *geom               =  xcb_get_geometry_reply(c, geom_cookie, NULL);
