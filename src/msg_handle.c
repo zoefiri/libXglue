@@ -161,7 +161,7 @@ char *resize_handler(xcb_connection_t *c, int *params, char *args, void *wm_stat
    int win_geom[] = {0, 0, 0, 0};
 
    if(parsed.char_args[0].set && parsed.int_args[0].set && wstate->active_win) {
-      xcb_translate_coordinates_reply_t *coords    =  calc_absolute_pos(c, &wstate->active_win, &wstate->root, 0, 0);
+      xcb_translate_coordinates_reply_t *coords    =  calc_absolute_pos(c, wstate->active_win, wstate->root, 0, 0);
       xcb_get_geometry_cookie_t geom_cookie        =  xcb_get_geometry(c, wstate->active_win);
       xcb_get_geometry_reply_t *geom               =  xcb_get_geometry_reply(c, geom_cookie, NULL);
       win_geom[0] = coords->dst_x;  // x
@@ -212,7 +212,9 @@ char *handle_msg(xcb_connection_t *c, msg_handler_t **handlers, char *msg, void 
 
    HASH_FIND_STR(*handlers, cmd, handler);
    if(handler) {
-      return((*handler->handler)(c, handler->params, args, wm_state));
+      char *response = (*handler->handler)(c, handler->params, args, wm_state);
+      xcb_flush(c);
+      return response;
    }
    else {
       return "cmd not found";
