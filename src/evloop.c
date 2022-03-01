@@ -83,4 +83,3 @@ int ev_loop(xcb_connection_t *c, ev_handler_t *ev_handlers, msg_handler_t **msg_
    }
    return 0;
 }
-
