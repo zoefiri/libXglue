@@ -1,3 +1,6 @@
+/**
+ * @file
+*/
 #ifndef  WM_STATE_H
 #define  WM_STATE_H
 

@@ -61,10 +61,10 @@ int valid_dec_int(char *str) {
    return 1;
 }
 
-args_t parse_args(int *params, char *args) {
+args_t parse_args(paramType_et *params, char *args) {
    args_t parsed;
    int int_c = 0, char_c = 0, str_c = 0, none_c = 0; 
-   for(int i=0; params[i] != 0; i++) {
+   for(int i=0; params[i] != _END; i++) {
       switch(params[i]) {
          case NONE_ARG:
             none_c++;
@@ -151,11 +151,11 @@ args_t parse_args(int *params, char *args) {
    return parsed;
 }
 
-char *focus_handler(xcb_connection_t *c, int *params, char *args, void *wm_state) {
+char *focus_handler(xcb_connection_t *c, paramType_et *params, char *args, void *wm_state) {
    args_t parsed = parse_args(params, args);
    return NULL;
 }
-char *resize_handler(xcb_connection_t *c, int *params, char *args, void *wm_state) {
+char *resize_handler(xcb_connection_t *c, paramType_et *params, char *args, void *wm_state) {
    wm_state_t *wstate = (wm_state_t*)wm_state;
    args_t parsed = parse_args(params, args);
    int win_geom[] = {0, 0, 0, 0};

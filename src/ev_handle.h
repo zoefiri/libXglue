@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief event handling + default handlers
+ */
 #ifndef  EV_HANDLE_H
 #define  EV_HANDLE_H
 
@@ -6,25 +10,45 @@
 
 
 /**
- * contains an xcb event response type and its appropriate handler function pointer
+ * struct {name} - handler structure for XCB events
  */
 typedef struct {
-   uint32_t ev; ///< event response type identifying this handler
    /**
-    * takes event and extra data (active keypresses etc.) and handles ev
-    * 
+    * @ev handler XCB event response type
+    */
+   uint32_t ev;
+   /**
+    * @brief handler function for handler
+    *
+    * @param c
+    * @param ev xcb event returned from xcb_poll_for_event()
+    * @param wm_state state data passed to all handlers
     */
    void(*fp)(xcb_connection_t *c, xcb_generic_event_t *ev, void *wm_state); 
 } ev_handler_t;
 
 int handle_ev(xcb_connection_t *c, ev_handler_t *handlers, xcb_generic_event_t *ev, void *wm_state);
 
+/**
+ * @brief default handler for XCB_MAP_REQUEST
+ *
+ * @param c 
+ * @param ev xcb event returned from xcb_poll_for_event()
+ * @param wm_state wm_state data passed to all handlers
+ */
 void map_request_handler(xcb_connection_t *c, xcb_generic_event_t *ev, void *wm_state);
+
+/**
+ * @brief default handler for XCB_DESTROY_NOTIFY
+ *
+ * @param c 
+ * @param ev xcb event returned from xcb_poll_for_event()
+ * @param wm_state wm_state data passed to all handlers
+ */
 void destroy_handler(xcb_connection_t *c, xcb_generic_event_t *ev, void *wm_state);
 
 /**
- * array of handler_t, indexed by corresponding xcb event response type
- * custom variant: all function pointers are set to NULL for user convenience
+ * @brief event handler array with no handler funcs initialized
  */
 static ev_handler_t custom_ev_handlers[] = {
    {0x0, NULL},
@@ -66,8 +90,7 @@ static ev_handler_t custom_ev_handlers[] = {
 };
 
 /**
- * array of handler_t, indexed by corresponding xcb event response type
- * default variant: default handlers are provided for all events
+ * @brief event handler array with default handlers initialized
  */
 static ev_handler_t default_ev_handlers[] = {
    {0x0, NULL},

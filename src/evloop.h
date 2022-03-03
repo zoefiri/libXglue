@@ -3,6 +3,7 @@
  * @brief event loop and its helper functions
  */
 
+#ifndef EVLOOP_H
 #define EVLOOP_H
 
 #include <xcb/xcb.h>
