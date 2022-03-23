@@ -156,13 +156,14 @@ char *focus_handler(xcb_connection_t *c, paramType_et *params, char *args, void 
    return NULL;
 }
 char *resize_handler(xcb_connection_t *c, paramType_et *params, char *args, void *wm_state) {
+   printf("resiz...\n");
    wm_state_t *wstate = (wm_state_t*)wm_state;
    args_t parsed = parse_args(params, args);
    int win_geom[] = {0, 0, 0, 0};
 
-   if(parsed.char_args[0].set && parsed.int_args[0].set && wstate->active_win) {
-      xcb_translate_coordinates_reply_t *coords    =  calc_absolute_pos(c, wstate->active_win, wstate->root, 0, 0);
-      xcb_get_geometry_cookie_t geom_cookie        =  xcb_get_geometry(c, wstate->active_win);
+   if(parsed.char_args[0].set && parsed.int_args[0].set && wstate->ewmh_state.active_win) {
+      xcb_translate_coordinates_reply_t *coords    =  calc_absolute_pos(c, wstate->ewmh_state.active_win, wstate->root, 0, 0);
+      xcb_get_geometry_cookie_t geom_cookie        =  xcb_get_geometry(c, wstate->ewmh_state.active_win);
       xcb_get_geometry_reply_t *geom               =  xcb_get_geometry_reply(c, geom_cookie, NULL);
       win_geom[0] = coords->dst_x;  // x
       win_geom[1] = coords->dst_y;  // y
@@ -187,7 +188,8 @@ char *resize_handler(xcb_connection_t *c, paramType_et *params, char *args, void
             return "invalid input";
             break;
       }
-      xcb_configure_window(c, wstate->active_win, XCB_CONFIG_WINDOW_X|XCB_CONFIG_WINDOW_Y|XCB_CONFIG_WINDOW_WIDTH|XCB_CONFIG_WINDOW_HEIGHT,
+      printf("%d:%d . %d:%d, 0x%x\n", win_geom[0], win_geom[0], win_geom[0], win_geom[0], wstate->ewmh_state.active_win);
+      xcb_configure_window(c, wstate->ewmh_state.active_win, XCB_CONFIG_WINDOW_X|XCB_CONFIG_WINDOW_Y|XCB_CONFIG_WINDOW_WIDTH|XCB_CONFIG_WINDOW_HEIGHT,
                                                   win_geom); 
    }
    return NULL;

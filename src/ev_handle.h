@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <xcb/xcb.h>
+#include "wm_state.h"
 
 
 /**
@@ -24,10 +25,10 @@ typedef struct {
     * @param ev xcb event returned from xcb_poll_for_event()
     * @param wm_state state data passed to all handlers
     */
-   void(*fp)(xcb_connection_t *c, xcb_generic_event_t *ev, void *wm_state); 
+   void(*fp)(xcb_connection_t *c, xcb_generic_event_t *ev, wm_state_t *wm_state); 
 } ev_handler_t;
 
-int handle_ev(xcb_connection_t *c, ev_handler_t *handlers, xcb_generic_event_t *ev, void *wm_state);
+int handle_ev(xcb_connection_t *c, ev_handler_t *handlers, xcb_generic_event_t *ev, wm_state_t *wm_state);
 
 /**
  * @brief default handler for XCB_MAP_REQUEST
@@ -36,7 +37,7 @@ int handle_ev(xcb_connection_t *c, ev_handler_t *handlers, xcb_generic_event_t *
  * @param ev xcb event returned from xcb_poll_for_event()
  * @param wm_state wm_state data passed to all handlers
  */
-void map_request_handler(xcb_connection_t *c, xcb_generic_event_t *ev, void *wm_state);
+void map_request_handler(xcb_connection_t *c, xcb_generic_event_t *ev, wm_state_t *wm_state);
 
 /**
  * @brief default handler for XCB_DESTROY_NOTIFY
@@ -45,7 +46,7 @@ void map_request_handler(xcb_connection_t *c, xcb_generic_event_t *ev, void *wm_
  * @param ev xcb event returned from xcb_poll_for_event()
  * @param wm_state wm_state data passed to all handlers
  */
-void destroy_handler(xcb_connection_t *c, xcb_generic_event_t *ev, void *wm_state);
+void destroy_handler(xcb_connection_t *c, xcb_generic_event_t *ev, wm_state_t *wm_state);
 
 /**
  * @brief event handler array with no handler funcs initialized
