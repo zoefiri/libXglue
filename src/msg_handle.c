@@ -61,6 +61,13 @@ int valid_dec_int(char *str) {
    return 1;
 }
 
+void free_args(args_t args) {
+   if(args.none_args) free(args.none_args);
+   if(args.int_args)  free(args.int_args);
+   if(args.char_args) free(args.char_args);
+   if(args.str_args)  free(args.str_args);
+}
+
 args_t parse_args(paramType_et *params, char *args) {
    args_t parsed;
    int int_c = 0, char_c = 0, str_c = 0, none_c = 0; 
@@ -151,51 +158,52 @@ args_t parse_args(paramType_et *params, char *args) {
    return parsed;
 }
 
-char *focus_handler(xcb_connection_t *c, paramType_et *params, char *args, void *wm_state) {
+char *focus_handler(xcb_connection_t *c, paramType_et *params, char *args, void *wstate) {
    args_t parsed = parse_args(params, args);
    return NULL;
 }
-char *resize_handler(xcb_connection_t *c, paramType_et *params, char *args, void *wm_state) {
-   printf("resiz...\n");
-   wm_state_t *wstate = (wm_state_t*)wm_state;
+char *resize_handler(xcb_connection_t *c, paramType_et *params, char *args, void *wstate) {
+   wm_state_t *wm_state = (wm_state_t*)wstate;
+   printf("resiz... 0x%x\n", wm_state->ewmh_state.active_win);
    args_t parsed = parse_args(params, args);
-   int win_geom[] = {0, 0, 0, 0};
 
-   if(parsed.char_args[0].set && parsed.int_args[0].set && wstate->ewmh_state.active_win) {
-      xcb_translate_coordinates_reply_t *coords    =  calc_absolute_pos(c, wstate->ewmh_state.active_win, wstate->root, 0, 0);
-      xcb_get_geometry_cookie_t geom_cookie        =  xcb_get_geometry(c, wstate->ewmh_state.active_win);
-      xcb_get_geometry_reply_t *geom               =  xcb_get_geometry_reply(c, geom_cookie, NULL);
-      win_geom[0] = coords->dst_x;  // x
-      win_geom[1] = coords->dst_y;  // y
-      win_geom[2] = geom->width;    // width
-      win_geom[3] = geom->height;   // height
+   if(parsed.char_args[0].set && parsed.int_args[0].set && wm_state->ewmh_state.active_win) {
+      xcb_window_t target = wm_state->ewmh_state.active_win;
+      xcb_translate_coordinates_reply_t *coords    =  calc_absolute_pos(c, target, wm_state->ewmh_state.root, 0, 0, &wm_state->ewmh_state);
+      xcb_get_geometry_reply_t *geom = getWindowGeometry(c, target, &wm_state->ewmh_state);
+      printf("%d %d %d %d resiz data\n", geom->x, geom->y, geom->width, geom->height);
+      if(!coords || !geom) {
+         return "err";
+      }
+      win_geom_t win_geom = { coords->dst_x, coords->dst_y, geom->width, geom->height };
+      free(geom);
       switch(parsed.char_args[0].val) {
          case 'l':
-            win_geom[0] += -1*parsed.int_args[0].val;
-            win_geom[2] += parsed.int_args[0].val;
+            win_geom.x += -1*parsed.int_args[0].val;
+            win_geom.w += parsed.int_args[0].val;
             break;
          case 'r':
-            win_geom[2] += parsed.int_args[0].val;
+            win_geom.w += parsed.int_args[0].val;
             break;
          case 'u':
-            win_geom[1] += -1*parsed.int_args[0].val;
-            win_geom[3] += parsed.int_args[0].val;
+            win_geom.y += -1*parsed.int_args[0].val;
+            win_geom.h += parsed.int_args[0].val;
             break;
          case 'd':
-            win_geom[3] += parsed.int_args[0].val;
+            win_geom.h += parsed.int_args[0].val;
             break;
          default:
             return "invalid input";
             break;
       }
-      printf("%d:%d . %d:%d, 0x%x\n", win_geom[0], win_geom[0], win_geom[0], win_geom[0], wstate->ewmh_state.active_win);
-      xcb_configure_window(c, wstate->ewmh_state.active_win, XCB_CONFIG_WINDOW_X|XCB_CONFIG_WINDOW_Y|XCB_CONFIG_WINDOW_WIDTH|XCB_CONFIG_WINDOW_HEIGHT,
-                                                  win_geom); 
+
+      mvWindow(c, target, win_geom, &wm_state->ewmh_state);
+      free_args(parsed);
    }
    return NULL;
 }
 
-char *handle_msg(xcb_connection_t *c, msg_handler_t **handlers, char *msg, void *wm_state) {
+char *handle_msg(xcb_connection_t *c, msg_handler_t **handlers, char *msg, void *wstate) {
    msg_handler_t *handler;
 
    char *tokenize = strdup(msg);
@@ -214,7 +222,7 @@ char *handle_msg(xcb_connection_t *c, msg_handler_t **handlers, char *msg, void 
 
    HASH_FIND_STR(*handlers, cmd, handler);
    if(handler) {
-      char *response = (*handler->handler)(c, handler->params, args, wm_state);
+      char *response = (*handler->handler)(c, handler->params, args, wstate);
       xcb_flush(c);
       return response;
    }

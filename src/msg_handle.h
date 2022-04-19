@@ -101,6 +101,10 @@ static msg_handler_t default_msg_handlers[] = {
 };
 #define default_msg_handlers_len sizeof(default_msg_handlers)/sizeof(default_msg_handlers[0])
 
+args_t parse_args(paramType_et *params, char *args);
+
+void free_args(args_t args);
+
 /**
  * @brief creates hash table for executing ev_loop() 
  *

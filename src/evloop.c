@@ -1,4 +1,5 @@
 #include <asm-generic/socket.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +18,9 @@
 #include "ev_handle.h"
 #include "msg_handle.h"
 #include "wm_state.h"
+#include "win_aux.h"
+
+static volatile uint8_t global_cleanup_flag = 0;
 
 int setup_socket(char *sock_path) {
    int sock_fd;
@@ -46,7 +50,27 @@ int setup_socket(char *sock_path) {
    return sock_fd;
 }
 
-int ev_loop(xcb_connection_t *c, ev_handler_t *ev_handlers, msg_handler_t **msg_handlers, void *wm_state) {
+void pass() {
+   return;
+}
+
+void set_cleanup() {
+   printf("CLEANUP SET\n");
+   global_cleanup_flag = 1;
+}
+
+void p_focus(xcb_connection_t *c) {
+   xcb_get_input_focus_cookie_t cookie = xcb_get_input_focus(c);
+   xcb_get_input_focus_reply_t *reply = xcb_get_input_focus_reply(c, cookie, NULL);
+   printf("current focus: 0x%x\t", reply->focus);
+   free(reply);
+}
+
+int ev_loop(xcb_connection_t *c, ev_handler_t *ev_handlers, msg_handler_t **msg_handlers, ewmh_state_t *ewmh_state, void *wm_state) {
+   signal(SIGINT, set_cleanup);
+   signal(SIGTERM, set_cleanup);
+   signal(SIGPIPE, pass);
+
    int sock_fd = setup_socket("/tmp/libxwm");
    int c_fd = xcb_get_file_descriptor(c);
    int client_fd;
@@ -57,13 +81,17 @@ int ev_loop(xcb_connection_t *c, ev_handler_t *ev_handlers, msg_handler_t **msg_
    char buff[2000];
    char *handler_response;
    while(1) {
+      if(global_cleanup_flag) {
+         cleanup(c, ewmh_state);
+         exit(0);
+      }
       poll(fds, 2, -1);
-      printf("uh\n");
 
       if(fds[0].revents == POLLIN) {
          xcb_aux_sync(c);
          while((ev = xcb_poll_for_event(c))) {
             handle_ev(c, ev_handlers, ev, wm_state);
+            printf("ev: %d\n", ev->response_type);
          }
       }
 
