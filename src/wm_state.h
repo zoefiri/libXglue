@@ -53,7 +53,6 @@ typedef struct {
 
 typedef struct {
    client_t **clients;
-   clientTable *client_table;
    uint32_t len;
 } clientList_t;
 

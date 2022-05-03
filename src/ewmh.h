@@ -14,6 +14,11 @@ typedef enum { _NET_SUPPORTED, _NET_CLIENT_LIST, _NET_NUMBER_OF_DESKTOPS, _NET_D
       _NET_WM_ICON, _NET_WM_PID, _NET_WM_HANDLED_ICONS, _NET_WM_USER_TIME, _NET_FRAME_EXTENTS
 } ewmh_atom_et; 
 
+static ewmh_atom_et default_atoms[] = { _NET_SUPPORTED, _NET_CLIENT_LIST, _NET_NUMBER_OF_DESKTOPS, _NET_DESKTOP_GEOMETRY,
+                                        _NET_DESKTOP_VIEWPORT, _NET_CURRENT_DESKTOP, _NET_DESKTOP_NAMES, _NET_ACTIVE_WINDOW, 
+                                        _NET_WORKAREA, _NET_SUPPORTING_WM_CHECK, _NET_VIRTUAL_ROOTS, 
+                                        _NET_SHOWING_DESKTOP, _NET_CLOSE_WINDOW };
+                       
 static char *atom_names[] = {
    "_NET_SUPPORTED", "_NET_CLIENT_LIST", "_NET_NUMBER_OF_DESKTOPS", "_NET_DESKTOP_GEOMETRY",
    "_NET_DESKTOP_VIEWPORT", "_NET_CURRENT_DESKTOP", "_NET_DESKTOP_NAMES", "_NET_ACTIVE_WINDOW",

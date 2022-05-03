@@ -60,6 +60,8 @@ int ewmh_init(xcb_connection_t *c, ewmh_atom_et *atoms, ewmh_state_t *ewmh_state
    ewmh_update_virtualRoots(c, ewmh_state);
    ewmh_update_workArea(c, ewmh_state);
 
+   xcb_set_input_focus(c, XCB_INPUT_FOCUS_NONE, ewmh_state->supporting_win, XCB_CURRENT_TIME);
+
    return 0;
 }
 
@@ -70,24 +72,17 @@ int ewmh_initClientList(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    xcb_get_geometry_reply_t          *geom;
    xcb_translate_coordinates_reply_t *pos; 
    win_geom_t                        newpos;
-   ewmh_state->clients.client_table = NULL;
    ewmh_state->clients.clients = NULL;
    ewmh_state->clients.len = 0;
 
    for(int i=0; i < root_tree->children_len; i++) {
       xcb_get_window_attributes_reply_t *attributes = xcb_get_window_attributes_reply(c, xcb_get_window_attributes(c, root_children[i]), NULL);
       if(attributes->map_state) {
+         printf("mng: 0x%x\n", root_children[i]);
          manageWindow(c, root_children[i], NULL, ewmh_state); // desktop needs to be non null, later.
-         geom = getWindowGeometry(c, root_children[i], NULL);
-         pos = calc_absolute_pos(c, root_children[i], ewmh_state->screen.screen.root, 0, 0, NULL);
-         newpos.x = pos->dst_x;
-         newpos.y = pos->dst_y;
-         newpos.w = geom->width;
-         newpos.h = geom->height;
-         mvWindow(c, root_children[i], newpos, ewmh_state);
-         xcb_map_window(c, get_decorWin(c, root_children[i]));
          xcb_flush(c);
       }
+      free(attributes);
    }
 }
 
@@ -105,25 +100,23 @@ int ewmh_update_clientList(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    xcb_void_cookie_t cookie;
    cookie = xcb_ewmh_set_client_list(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                      ewmh_state->clients.len, list);
-   xcb_request_check(c, cookie);
 
    cookie = xcb_ewmh_set_client_list_stacking_checked(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                       ewmh_state->clients.len, list);
-   xcb_request_check(c, cookie);
+   
+   free(list);
    return 0;
 }
 
 int ewmh_update_numberOfDesktops(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    xcb_void_cookie_t cookie = xcb_ewmh_set_number_of_desktops(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                               ewmh_state->desktops.len);
-   xcb_request_check(c, cookie);
    return 0;
 }
 
 int ewmh_update_desktopGeometry(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    xcb_void_cookie_t cookie = xcb_ewmh_set_desktop_geometry(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                             ewmh_state->screen.screen.width_in_pixels, ewmh_state->screen.screen.height_in_pixels);
-   xcb_request_check(c, cookie);
    return 0;
 }
 
@@ -135,7 +128,6 @@ int ewmh_update_desktopViewport(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    }
    xcb_void_cookie_t cookie = xcb_ewmh_set_desktop_viewport(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                             ewmh_state->desktops.len, viewports);
-   xcb_request_check(c, cookie);
    free(viewports);
    return 0;
 }
@@ -143,7 +135,6 @@ int ewmh_update_desktopViewport(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
 int ewmh_update_currentDesktop(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    xcb_void_cookie_t cookie = xcb_ewmh_set_current_desktop(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                            ewmh_state->desktops.current);
-   xcb_request_check(c, cookie);
    return 0;
 }
 
@@ -167,7 +158,6 @@ int ewmh_update_desktopNames(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    }
    xcb_void_cookie_t cookie = xcb_ewmh_set_desktop_names(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                          ewmh_state->desktops.len, names);
-   xcb_request_check(c, cookie);
    free(names);
    return 0;
 }
@@ -175,7 +165,6 @@ int ewmh_update_desktopNames(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
 int ewmh_update_activeWindow(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    xcb_void_cookie_t cookie = xcb_ewmh_set_active_window_checked(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                                  ewmh_state->active_win);
-   xcb_request_check(c, cookie);
    return 0;
 }
 
@@ -186,7 +175,6 @@ int ewmh_update_workArea(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    }
    xcb_void_cookie_t cookie = xcb_ewmh_set_workarea(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                     ewmh_state->desktops.len, workareas);
-   xcb_request_check(c, cookie);
    free(workareas);
    return 0;
 }
@@ -199,7 +187,6 @@ int ewmh_update_supportingWmCheck(xcb_connection_t *c, ewmh_state_t *ewmh_state)
    xcb_intern_atom_reply_t *atom_reply    = xcb_intern_atom_reply(c, atom_cookie, NULL);
 
    xcb_void_cookie_t cookie = xcb_ewmh_set_supporting_wm_check(ewmh_state->ewmh_c, ewmh_state->root, ewmh_state->supporting_win);
-   xcb_request_check(c, cookie);
    xcb_ewmh_set_supporting_wm_check(ewmh_state->ewmh_c, ewmh_state->supporting_win, ewmh_state->root);
    xcb_ewmh_set_supporting_wm_check(ewmh_state->ewmh_c, ewmh_state->supporting_win, ewmh_state->supporting_win);
    xcb_ewmh_set_wm_name(ewmh_state->ewmh_c, ewmh_state->supporting_win, 
@@ -215,7 +202,6 @@ int ewmh_update_virtualRoots(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
 
    xcb_void_cookie_t cookie = xcb_ewmh_set_virtual_roots(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                          ewmh_state->virtual_roots.len, list);
-   xcb_request_check(c, cookie);
    return 0;
 }
 
@@ -223,7 +209,6 @@ int ewmh_update_showingDesktop(xcb_connection_t *c, ewmh_state_t *ewmh_state) {
    ewmh_state->showing_desktop = !ewmh_state->showing_desktop;
    xcb_void_cookie_t cookie = xcb_ewmh_set_showing_desktop(ewmh_state->ewmh_c, ewmh_state->screen.screen_i,
                                                            ewmh_state->showing_desktop);
-   xcb_request_check(c, cookie);
    return 0;
 }
 
@@ -343,6 +328,7 @@ void ewmh_handle_restackWindow(xcb_connection_t *c, xcb_client_message_event_t *
          }
          break;
    }
+   free(ref.clients);
 
    uint32_t values[] = { stack_mode };
    xcb_configure_window (c, msg->window, XCB_CONFIG_WINDOW_STACK_MODE, values);

@@ -88,10 +88,11 @@ int ev_loop(xcb_connection_t *c, ev_handler_t *ev_handlers, msg_handler_t **msg_
       poll(fds, 2, -1);
 
       if(fds[0].revents == POLLIN) {
-         xcb_aux_sync(c);
+         xcb_flush(c);
          while((ev = xcb_poll_for_event(c))) {
-            handle_ev(c, ev_handlers, ev, wm_state);
             printf("ev: %d\n", ev->response_type);
+            handle_ev(c, ev_handlers, ev, wm_state);
+            if(ev) free(ev);
          }
       }
 

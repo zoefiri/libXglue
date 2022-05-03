@@ -48,6 +48,7 @@ typedef struct {
    char_arg_t *char_args;
    str_arg_t *str_args;
    none_arg_t *none_args;
+   int str_args_len;
 } args_t;
 
 /**
@@ -74,32 +75,6 @@ typedef struct {
    UT_hash_handle hh;
 } msg_handler_t;
 
-/**
- * @brief default "focus" functionality handler
- */
-char *focus_handler(xcb_connection_t *c, paramType_et *params, char *args, void *wm_state);
-
-/**
- * @brief default "resize" funcitonality handler
- */
-char *resize_handler(xcb_connection_t *c, paramType_et *params, char *args, void *wm_state);
-
-/**
- * @brief array of default message handlers providing some basic functionalities
- */
-static msg_handler_t default_msg_handlers[] = {
-   {
-      "focus",
-      (paramType_et[]){CHAR_ARG, _END},
-      focus_handler
-   },
-   {
-      "resize",
-      (paramType_et[]){CHAR_ARG, INT_ARG, _END},
-      resize_handler
-   }
-};
-#define default_msg_handlers_len sizeof(default_msg_handlers)/sizeof(default_msg_handlers[0])
 
 args_t parse_args(paramType_et *params, char *args);
 
