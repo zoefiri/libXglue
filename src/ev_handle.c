@@ -3,7 +3,6 @@
 #include <xcb/xproto.h>
 #include <xcb/xcb_errors.h>
 
-#include "ev_handle.h"
 #include "ewmh.h"
 #include "win_aux.h"
 #include "wm_state.h"
