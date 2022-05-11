@@ -17,7 +17,7 @@ Doxygen documentation can be generated with `make doc` and is located at doxygen
 
 ## install
 `sudo make install` (make sure to get dependencies)
-there's also a `lib` target if you'd just like to build libxglue.so
+there's also a `lib` and `demo_wm` target if you'd just like to build libxglue.so or build the demo WM binary
 
 ## dependencies
 * libxcb
