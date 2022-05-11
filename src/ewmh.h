@@ -36,19 +36,109 @@ typedef struct {
    void(*fp)(xcb_connection_t *c, xcb_client_message_event_t *msg, ewmh_state_t *ewmh_state);
 } ewmh_handler_t;
 
+/**
+ * @brief sets up EWMH functionality and root atoms
+ *
+ * @param c 
+ * @param atoms array of supported atoms
+ * @param ewmh_state 
+ */
 int ewmh_init(xcb_connection_t *c, ewmh_atom_et *atoms, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief initalizes EWMH client list from already pleasant clients at startup
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_initClientList(xcb_connection_t *c, ewmh_state_t *ewmh_state);
 
+/**
+ * @brief updates EWMH client list from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_clientList(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH number of desktops from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_numberOfDesktops(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH desktop geometry from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_desktopGeometry(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH desktop viewport from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_desktopViewport(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH current desktop from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_currentDesktop(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH desktop names from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_desktopNames(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH active window from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_activeWindow(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH work area from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_workArea(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH supporting WM check from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_supportingWmCheck(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH virtual roots from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_virtualRoots(xcb_connection_t *c, ewmh_state_t *ewmh_state);
+
+/**
+ * @brief updates EWMH showing desktop property from current ewmh_state value
+ *
+ * @param c 
+ * @param ewmh_state 
+ */
 int ewmh_update_showingDesktop(xcb_connection_t *c, ewmh_state_t *ewmh_state);
 
 void ewmh_handle_closeWindow(xcb_connection_t *c, xcb_client_message_event_t *msg, ewmh_state_t *ewmh_state);

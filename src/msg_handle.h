@@ -76,8 +76,20 @@ typedef struct {
 } msg_handler_t;
 
 
+/**
+ * @brief generates args_t of params parameter types from args string
+ *
+ * @param params an array of parameters to extract from args
+ * @param args a string of args passed to a message handler
+ * @return args_t contains args parsed from args string
+ */
 args_t parse_args(paramType_et *params, char *args);
 
+/**
+ * @brief frees an args_t
+ *
+ * @param args args_t structure to free
+ */
 void free_args(args_t args);
 
 /**
