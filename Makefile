@@ -21,5 +21,9 @@ doc:
 	mkdir -p doxygen
 	doxygen doxygen/doxygen.conf
 
+demo_wm:
+	$(CC) $(LDFLAGS) demo/*.c -o $@
+
+
 clean: 
 	rm libxglue.so
