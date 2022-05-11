@@ -17,19 +17,9 @@ lib: libxglue.so
 libxglue.so:
 	$(CC) $(LDFLAGS) $(LIBSOURCES) -fPIC -shared -o $@
 
-test:
-	$(CC) $(CFLAGS) $(LDFLAGS) $(SOURCES) -o $@
-
-san:
-	$(CC) $(CFLAGS) $(LDFLAGS) $(SOURCES) $(SANFLAGS) -o $@
-
-dbg:
-	$(CC) $(CFLAGS) $(LDFLAGS) $(SOURCES) $(DBGFLAGS) -o $@
-
-
-
 doc:
+	mkdir -p doxygen
 	doxygen doxygen/doxygen.conf
 
 clean: 
-	rm test san dbg
+	rm libxglue.so
